@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "sync:modelcode": "node scripts/sync-modelcode.mjs",
+    "predev": "node scripts/sync-modelcode.mjs",
+    "prebuild": "node scripts/sync-modelcode.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

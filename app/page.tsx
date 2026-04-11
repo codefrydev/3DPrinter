@@ -1,17 +1,15 @@
 import { CodePanel } from "@/components/CodePanel";
-import { Footer } from "@/components/Footer";
 import { Gallery } from "@/components/Gallery";
-import { Header } from "@/components/Header";
+import { getFeaturedModel, listModelsForGallery } from "@/modelcode/registry";
 
 export default function Home() {
+  const featured = getFeaturedModel();
+  const galleryModels = listModelsForGallery();
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1">
-        <CodePanel />
-        <Gallery />
-      </main>
-      <Footer />
-    </div>
+    <main>
+      <CodePanel model={featured} />
+      <Gallery models={galleryModels} />
+    </main>
   );
 }

@@ -22,7 +22,7 @@ def create_materials():
     bsdf_wood.inputs["Base Color"].default_value = (0.55, 0.28, 0.05, 1.0)
     bsdf_wood.inputs["Roughness"].default_value = 0.6
     
-    # 3. Metal (for hooks)
+    # 3. Metal (for hooks - kept for screws)
     mat_metal = bpy.data.materials.new(name="MetalHook_Mat")
     mat_metal.use_nodes = True
     bsdf_metal = mat_metal.node_tree.nodes["Principled BSDF"]
@@ -33,7 +33,7 @@ def create_materials():
     return mat_base, mat_wood, mat_metal
 
 def create_pill_shape(name, loc, width, height, depth, mat):
-    """Generates a rounded rectangle (pill shape) out of a cube and two cylinders."""
+    """Generates a rounded rectangle (pill shape) and uses Boolean Union for a manifold mesh."""
     core_width = width - height
     
     # Main center rectangular body
@@ -43,66 +43,39 @@ def create_pill_shape(name, loc, width, height, depth, mat):
     obj.dimensions = (core_width, depth, height)
     obj.data.materials.append(mat)
 
-    # Left semi-circle cap
-    bpy.ops.mesh.primitive_cylinder_add(radius=height/2, depth=depth, location=(loc[0] - core_width/2, loc[1], loc[2]))
+    # Left semi-circle cap (Increased vertices to 64 for a smoother 3D print)
+    bpy.ops.mesh.primitive_cylinder_add(radius=height/2, depth=depth, location=(loc[0] - core_width/2, loc[1], loc[2]), vertices=64)
     cap1 = bpy.context.active_object
     cap1.name = name + "_LeftCap"
     cap1.rotation_euler = (math.radians(90), 0, 0)
-    cap1.data.materials.append(mat)
 
     # Right semi-circle cap
-    bpy.ops.mesh.primitive_cylinder_add(radius=height/2, depth=depth, location=(loc[0] + core_width/2, loc[1], loc[2]))
+    bpy.ops.mesh.primitive_cylinder_add(radius=height/2, depth=depth, location=(loc[0] + core_width/2, loc[1], loc[2]), vertices=64)
     cap2 = bpy.context.active_object
     cap2.name = name + "_RightCap"
     cap2.rotation_euler = (math.radians(90), 0, 0)
-    cap2.data.materials.append(mat)
-
-def create_hook(name, loc, mat):
-    """Creates a realistic metal J-hook using a 3D Bezier curve."""
-    curve_data = bpy.data.curves.new(name, type='CURVE')
-    curve_data.dimensions = '3D'
-    curve_data.bevel_depth = 0.035
-    curve_data.bevel_resolution = 6
-    curve_data.use_fill_caps = True
-
-    spline = curve_data.splines.new('BEZIER')
-    spline.bezier_points.add(3) # 4 points total for the J shape
-    pts = spline.bezier_points
-
-    # P0: Attachment to the board
-    pts[0].co = loc
-    pts[0].handle_left = (loc[0], loc[1] + 0.1, loc[2])
-    pts[0].handle_right = (loc[0], loc[1] - 0.2, loc[2])
-
-    # P1: Bottom curve of the J
-    pts[1].co = (loc[0], loc[1] - 0.25, loc[2] - 0.4)
-    pts[1].handle_left = (loc[0], loc[1] - 0.15, loc[2] - 0.4)
-    pts[1].handle_right = (loc[0], loc[1] - 0.35, loc[2] - 0.4)
-
-    # P2: Front lip ascending
-    pts[2].co = (loc[0], loc[1] - 0.4, loc[2] - 0.2)
-    pts[2].handle_left = (loc[0], loc[1] - 0.4, loc[2] - 0.3)
-    pts[2].handle_right = (loc[0], loc[1] - 0.4, loc[2] - 0.1)
-
-    # P3: Hook tip
-    pts[3].co = (loc[0], loc[1] - 0.3, loc[2] - 0.1)
-    pts[3].handle_left = (loc[0], loc[1] - 0.35, loc[2] - 0.1)
-    pts[3].handle_right = (loc[0], loc[1] - 0.25, loc[2] - 0.1)
-
-    hook_obj = bpy.data.objects.new(name, curve_data)
-    bpy.context.collection.objects.link(hook_obj)
-    hook_obj.data.materials.append(mat)
-
-    # Base knob (where it connects to wood)
-    bpy.ops.mesh.primitive_cylinder_add(radius=0.08, depth=0.06, location=(loc[0], loc[1] - 0.02, loc[2]))
-    knob = bpy.context.active_object
-    knob.rotation_euler = (math.radians(90), 0, 0)
-    knob.data.materials.append(mat)
     
-    # Tip sphere
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.038, location=(loc[0], loc[1] - 0.3, loc[2] - 0.1))
-    tip = bpy.context.active_object
-    tip.data.materials.append(mat)
+    # Use Boolean Union instead of Join to make a true manifold solid without internal faces
+    bool_mod1 = obj.modifiers.new(name="UnionLeft", type='BOOLEAN')
+    bool_mod1.operation = 'UNION'
+    bool_mod1.object = cap1
+    bool_mod1.solver = 'EXACT'
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.modifier_apply(modifier=bool_mod1.name)
+    
+    bool_mod2 = obj.modifiers.new(name="UnionRight", type='BOOLEAN')
+    bool_mod2.operation = 'UNION'
+    bool_mod2.object = cap2
+    bool_mod2.solver = 'EXACT'
+    bpy.ops.object.modifier_apply(modifier=bool_mod2.name)
+    
+    # Clean up the original cylinder caps
+    bpy.ops.object.select_all(action='DESELECT')
+    cap1.select_set(True)
+    cap2.select_set(True)
+    bpy.ops.object.delete()
+    
+    return obj
 
 def create_roof(name, loc, width, depth, height, mat):
     """Creates a triangular prism for the house roof."""
@@ -140,7 +113,7 @@ def create_roof_trim(loc, width, height, thickness, mat):
     right.data.materials.append(mat)
 
 def create_arched_window(loc, mat_wood, mat_base):
-    """Builds the window using distinct parts (base, frame, mullions) without boolean glitches."""
+    """Builds the window using distinct parts (base, frame, mullions)."""
     # Dark glass background
     bpy.ops.mesh.primitive_cube_add(location=(loc[0], loc[1], loc[2] + 0.4))
     glass = bpy.context.active_object
@@ -181,10 +154,11 @@ def create_arched_window(loc, mat_wood, mat_base):
     sill.data.materials.append(mat_wood)
 
 def create_tree(loc, mat):
-    """Creates a stylized silhouette tree out of overlapping cylinders."""
+    """Creates a stylized silhouette tree using Boolean Union to prevent internal faces."""
     # Trunk
     bpy.ops.mesh.primitive_cube_add(location=(loc[0], loc[1], loc[2] + 0.8))
     trunk = bpy.context.active_object
+    trunk.name = "Tree_Trunk"
     trunk.dimensions = (0.3, 0.15, 1.6)
     trunk.data.materials.append(mat)
 
@@ -194,23 +168,44 @@ def create_tree(loc, mat):
         (-0.8, 0, 1.8), (0.8, 0, 1.8), (-0.4, 0, 2.2),
         (0.4, 0, 2.2), (0, 0, 2.5)
     ]
+    leaves = []
     for cx, cy, cz in centers:
-        bpy.ops.mesh.primitive_cylinder_add(radius=0.6, depth=0.15, location=(loc[0]+cx, loc[1]+cy, loc[2]+cz))
+        # Added vertices=32 for slightly smoother tree circles
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.6, depth=0.15, location=(loc[0]+cx, loc[1]+cy, loc[2]+cz), vertices=32)
         leaf = bpy.context.active_object
         leaf.rotation_euler = (math.radians(90), 0, 0)
-        leaf.data.materials.append(mat)
+        leaves.append(leaf)
+        
+    # Apply Boolean Union to make the entire tree one solid manifold mesh
+    for leaf in leaves:
+        bool_mod = trunk.modifiers.new(name="UnionLeaf", type='BOOLEAN')
+        bool_mod.operation = 'UNION'
+        bool_mod.object = leaf
+        bool_mod.solver = 'EXACT'
+        bpy.context.view_layer.objects.active = trunk
+        bpy.ops.object.modifier_apply(modifier=bool_mod.name)
+        
+    # Clean up the original leaf cylinders
+    bpy.ops.object.select_all(action='DESELECT')
+    for leaf in leaves:
+        leaf.select_set(True)
+    bpy.ops.object.delete()
 
 def create_text(loc, mat):
-    """Adds the extruded 'Sweet Home' 3D text."""
+    """Adds the extruded 'Sweet Home' 3D text and converts to Mesh for 3D Printing."""
     # Top Text: "Sweet"
     bpy.ops.object.text_add(location=(loc[0] + 0.3, loc[1] + 0.05, loc[2] + 0.7))
     t1 = bpy.context.active_object
     t1.data.body = "Sweet"
     t1.data.extrude = 0.06
-    t1.data.bevel_depth = 0.005 # Adds subtle rounded edge
+    t1.data.bevel_depth = 0.005 
     t1.data.size = 0.8
     t1.rotation_euler = (math.radians(90), 0, 0)
     t1.data.materials.append(mat)
+    
+    # Convert text to printable mesh
+    bpy.context.view_layer.objects.active = t1
+    bpy.ops.object.convert(target='MESH')
 
     # Bottom Text: "Home"
     bpy.ops.object.text_add(location=(loc[0] - 0.4, loc[1], loc[2]))
@@ -221,13 +216,17 @@ def create_text(loc, mat):
     t2.data.size = 1.1
     t2.rotation_euler = (math.radians(90), 0, 0)
     t2.data.materials.append(mat)
+    
+    # Convert text to printable mesh
+    bpy.context.view_layer.objects.active = t2
+    bpy.ops.object.convert(target='MESH')
 
 def main():
     # 1. Base initialization
     mat_base, mat_wood, mat_metal = create_materials()
 
     # 2. Main Base Board (Dark Blue)
-    create_pill_shape('BaseBoard', (0, 0, -1.5), width=6.5, height=1.8, depth=0.2, mat=mat_base)
+    base_board = create_pill_shape('BaseBoard', (0, 0, -1.5), width=6.5, height=1.8, depth=0.2, mat=mat_base)
 
     # 3. Shelf
     bpy.ops.mesh.primitive_cube_add(location=(0, -0.3, -0.525))
@@ -236,12 +235,36 @@ def main():
     shelf.data.materials.append(mat_base)
 
     # 4. Wood Hook Panel
-    create_pill_shape('WoodPanel', (0, -0.15, -1.5), width=5.5, height=0.8, depth=0.1, mat=mat_wood)
+    wood_panel = create_pill_shape('WoodPanel', (0, -0.15, -1.5), width=5.5, height=0.8, depth=0.1, mat=mat_wood)
 
-    # 5. Hooks (x6)
+    # 5. Create Holes for Standard Hooks (3D Print Modular)
+    # We use boolean difference to drill holes through the wood panel and base board.
     hook_x_positions = [-2.0, -1.2, -0.4, 0.4, 1.2, 2.0]
-    for x in hook_x_positions:
-        create_hook(f'Hook_{x}', (x, -0.2, -1.5), mat_metal)
+    cutters = []
+    
+    for i, x in enumerate(hook_x_positions):
+        # 0.025 radius = 5mm diameter hole (standard for many cup/screw hooks)
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.025, depth=0.5, location=(x, -0.1, -1.5))
+        cutter = bpy.context.active_object
+        cutter.name = f"HoleCutter_{i}"
+        cutter.rotation_euler = (math.radians(90), 0, 0)
+        cutters.append(cutter)
+        
+    # Apply the boolean difference modifiers to carve out the holes
+    for target in [wood_panel, base_board]:
+        for cutter in cutters:
+            bool_mod = target.modifiers.new(name="HookHole", type='BOOLEAN')
+            bool_mod.operation = 'DIFFERENCE'
+            bool_mod.object = cutter
+            bool_mod.solver = 'FAST'
+            bpy.context.view_layer.objects.active = target
+            bpy.ops.object.modifier_apply(modifier=bool_mod.name)
+            
+    # Clean up and delete the cutter cylinders
+    bpy.ops.object.select_all(action='DESELECT')
+    for cutter in cutters:
+        cutter.select_set(True)
+    bpy.ops.object.delete()
 
     # 6. House Structure (Left)
     house_loc = (-2.0, 0.05, 0.35)
@@ -263,12 +286,54 @@ def main():
     # 8. Text Elements (Right)
     create_text((1.2, -0.05, -0.45), mat_wood)
 
-    # 9. Mounting Screws on the Base Board
-    for x in [-2.8, 2.8]:
-        bpy.ops.mesh.primitive_cylinder_add(radius=0.08, depth=0.25, location=(x, -0.05, -0.8))
-        screw = bpy.context.active_object
-        screw.rotation_euler = (math.radians(90), 0, 0)
-        screw.data.materials.append(mat_metal)
+    # 9. Mounting Screws (Holes) on the Base Board for wall mounting
+    # Changed from solid metal cylinders to actual printable screw holes
+    wall_cutters = []
+    for i, x in enumerate([-2.8, 2.8]):
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.03, depth=0.5, location=(x, 0, -0.8))
+        wall_cutter = bpy.context.active_object
+        wall_cutter.rotation_euler = (math.radians(90), 0, 0)
+        wall_cutters.append(wall_cutter)
+        
+    for w_cutter in wall_cutters:
+        bool_mod = base_board.modifiers.new(name="WallMount", type='BOOLEAN')
+        bool_mod.operation = 'DIFFERENCE'
+        bool_mod.object = w_cutter
+        bool_mod.solver = 'FAST'
+        bpy.context.view_layer.objects.active = base_board
+        bpy.ops.object.modifier_apply(modifier=bool_mod.name)
+        
+    bpy.ops.object.select_all(action='DESELECT')
+    for w_cutter in wall_cutters:
+        w_cutter.select_set(True)
+    bpy.ops.object.delete()
+
+    # 9.5 Add Engraved Branding "CFD"
+    # Placed in the bottom center of the Base Board
+    bpy.ops.object.text_add(location=(0.0, -0.05, -2.15))
+    branding = bpy.context.active_object
+    branding.data.body = "CFD"
+    branding.data.align_x = 'CENTER' # Center the text alignment
+    branding.data.extrude = 0.1  # Make it thick enough to act as a cutter
+    branding.data.size = 0.25
+    branding.rotation_euler = (math.radians(90), 0, 0)
+    
+    # Convert the text to a mesh so it can be used for boolean operations
+    bpy.context.view_layer.objects.active = branding
+    bpy.ops.object.convert(target='MESH')
+    
+    # Apply boolean difference to carve it into the BaseBoard
+    bool_mod = base_board.modifiers.new(name="BrandingCut", type='BOOLEAN')
+    bool_mod.operation = 'DIFFERENCE'
+    bool_mod.object = branding
+    bool_mod.solver = 'FAST'
+    bpy.context.view_layer.objects.active = base_board
+    bpy.ops.object.modifier_apply(modifier=bool_mod.name)
+    
+    # Clean up the cutter text
+    bpy.ops.object.select_all(action='DESELECT')
+    branding.select_set(True)
+    bpy.ops.object.delete()
 
     # 10. Parent all to a Master Empty
     bpy.ops.object.empty_add(type='PLAIN_AXES', location=(0, 0, 0))
@@ -309,4 +374,4 @@ if __name__ == "__main__":
     clear_scene()
     main()
     setup_lighting_and_camera()
-    print("Key Holder Generation Complete!")
+    print("Key Holder Generation Complete! Ready for 3D Print Export.")

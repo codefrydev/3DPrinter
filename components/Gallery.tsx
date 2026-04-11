@@ -1,36 +1,27 @@
-import { ArrowRight, Cpu, Dna, MountainSnow } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Box, Home } from "lucide-react";
+import type { GalleryModel, ModelTagTone } from "@/modelcode/registry";
+import type { LucideIcon } from "lucide-react";
 
-const cards = [
-  {
-    href: "#",
-    title: "Quantum Engine",
-    tag: "Python",
-    tagClass: "text-syntax-blue",
-    icon: Cpu,
-    description:
-      "A multi-stage propulsion engine with procedurally generated internal pipe routing.",
-  },
-  {
-    href: "#",
-    title: "Bio-Dome Structure",
-    tag: "Geo Nodes",
-    tagClass: "text-syntax-green",
-    icon: Dna,
-    description:
-      "Hexagonal lattice generation script for botanical containment on exoplanets.",
-  },
-  {
-    href: "#",
-    title: "Fractal Terrain",
-    tag: "VEX",
-    tagClass: "text-syntax-pink",
-    icon: MountainSnow,
-    description:
-      "Noise-based displacement terrain generating realistic erosion and sediment flow.",
-  },
-] as const;
+const toneClass: Record<ModelTagTone, string> = {
+  blue: "text-syntax-blue",
+  green: "text-syntax-green",
+  pink: "text-syntax-pink",
+};
 
-export function Gallery() {
+const iconById: Record<string, LucideIcon> = {
+  "home-key": Home,
+};
+
+function cardIcon(id: string): LucideIcon {
+  return iconById[id] ?? Box;
+}
+
+export type GalleryProps = {
+  models: readonly GalleryModel[];
+};
+
+export function Gallery({ models }: GalleryProps) {
   return (
     <section
       id="gallery"
@@ -46,28 +37,31 @@ export function Gallery() {
             Procedural collection
           </h2>
           <p className="font-light leading-relaxed text-secondary">
-            Explore generated 3D assets and their source workflows.
+            Open a viewer page for the 3D preview, then copy the Blender or
+            script source from there.
           </p>
         </div>
-        <button
-          type="button"
+        <a
+          href="#gallery"
           className="group inline-flex items-center gap-2 rounded-control border border-transparent px-3 py-2 text-sm font-medium text-secondary transition-colors hover:border-line-strong hover:text-primary motion-reduce:transition-none"
         >
-          View all gallery
+          Browse models
           <ArrowRight
             className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none"
             aria-hidden
           />
-        </button>
+        </a>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {cards.map(
-          ({ href, title, tag, tagClass, icon: Icon, description }) => (
-            <a
-              key={title}
-              href={href}
-              aria-label={`${title}: ${description}`}
+        {models.map((m) => {
+          const Icon = cardIcon(m.id);
+          const tagClass = toneClass[m.tagTone];
+          return (
+            <Link
+              key={m.id}
+              href={`/view/${m.id}/`}
+              aria-label={`${m.title}: open 3D viewer and copy code. ${m.description}`}
               className="group block overflow-hidden rounded-card border border-line-strong bg-surface shadow-card transition-[border-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-line-focus hover:shadow-card-hover motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
               <div className="relative flex h-52 items-center justify-center overflow-hidden border-b border-line-strong bg-elevated">
@@ -84,21 +78,27 @@ export function Gallery() {
               <div className="p-6">
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <h3 className="font-semibold text-primary transition-colors duration-200 group-hover:text-accent motion-reduce:transition-none">
-                    {title}
+                    {m.title}
                   </h3>
                   <span
                     className={`shrink-0 rounded border border-line-strong bg-elevated px-2 py-1 font-mono text-[10px] font-medium uppercase tracking-wide ${tagClass}`}
                   >
-                    {tag}
+                    {m.tag}
                   </span>
                 </div>
-                <p className="line-clamp-2 text-sm leading-relaxed text-secondary">
-                  {description}
+                <p className="line-clamp-3 text-sm leading-relaxed text-secondary">
+                  {m.description}
+                </p>
+                <p className="mt-3 font-mono text-[10px] text-secondary/90">
+                  Blender {m.blenderVersion}
+                </p>
+                <p className="mt-2 text-xs font-medium text-accent/80">
+                  Open viewer →
                 </p>
               </div>
-            </a>
-          ),
-        )}
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

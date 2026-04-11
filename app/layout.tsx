@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
 import "./globals.css";
 
 const inter = Inter({
@@ -15,9 +17,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ModelGen | Lunar Spacesuit",
+  title: "ModelGen | Procedural 3D",
   description:
-    "Procedural 3D model showcase with generation script — ModelGen Lunar Spacesuit.",
+    "Procedural 3D model showcase: browse scripts, preview GLBs in the browser, and copy generation code.",
 };
 
 export default function RootLayout({
@@ -28,7 +30,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen bg-bg font-sans text-primary antialiased selection:bg-accent selection:text-bg">
-        {children}
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </div>
       </body>
     </html>
   );

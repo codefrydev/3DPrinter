@@ -1,24 +1,25 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Check, Copy, Download, FileText, Mouse } from "lucide-react";
-import { LUNAR_SPACESUIT_CODE } from "@/lib/modelgenCode";
+import { Check, Copy, Mouse } from "lucide-react";
+import type { ModelEntry } from "@/modelcode/registry";
 import { LazyModelViewer } from "@/components/LazyModelViewer";
 import { copyToClipboard } from "@/lib/copyToClipboard";
 
-const MODEL_SRC =
-  "https://modelviewer.dev/shared-assets/models/Astronaut.glb";
+export type CodePanelProps = {
+  model: ModelEntry;
+};
 
-function ModelStage() {
+function ModelStage({ model }: { model: ModelEntry }) {
   const [overlayCopied, setOverlayCopied] = useState(false);
 
   const handleOverlayCopy = useCallback(async () => {
     if (overlayCopied) return;
-    const ok = await copyToClipboard(LUNAR_SPACESUIT_CODE);
+    const ok = await copyToClipboard(model.code);
     if (!ok) return;
     setOverlayCopied(true);
     window.setTimeout(() => setOverlayCopied(false), 2000);
-  }, [overlayCopied]);
+  }, [overlayCopied, model.code]);
 
   return (
     <section
@@ -57,75 +58,93 @@ function ModelStage() {
 
         <div className="absolute inset-0">
           <LazyModelViewer
-            src={MODEL_SRC}
-            alt="Lunar spacesuit showcase model"
+            src={model.modelUrl}
+            alt={`${model.title} — 3D preview`}
             className="h-full w-full"
           />
         </div>
 
-        <div className="pointer-events-none absolute bottom-4 left-1/2 flex max-w-[90%] -translate-x-1/2 items-center gap-2 rounded-full border border-line-strong bg-surface/85 px-3 py-1.5 text-xs text-secondary opacity-70 shadow-card backdrop-blur-sm transition-opacity duration-300 ease-out group-hover:opacity-100 motion-reduce:opacity-100 motion-reduce:transition-none">
-          <Mouse className="h-3 w-3 shrink-0 text-secondary" aria-hidden />
-          <span>Scroll to zoom · drag to rotate</span>
+        <div className="pointer-events-none absolute bottom-4 left-1/2 flex max-w-[90%] -translate-x-1/2 flex-col items-center gap-1 rounded-full border border-line-strong bg-surface/85 px-3 py-1.5 text-center text-xs text-secondary shadow-card backdrop-blur-sm opacity-80 transition-opacity duration-300 ease-out group-hover:opacity-100 motion-reduce:opacity-100 motion-reduce:transition-none">
+          <span className="flex items-center gap-2">
+            <Mouse className="h-3 w-3 shrink-0 text-secondary" aria-hidden />
+            Scroll to zoom · drag to rotate
+          </span>
+          <span className="text-[10px] font-normal text-secondary/90">
+            Web preview only — no file download from this page.
+          </span>
         </div>
       </div>
     </section>
   );
 }
 
-function HeroCopy() {
+function HeroCopy({ model }: { model: ModelEntry }) {
   return (
     <div className="mb-10 max-w-measure">
       <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-secondary">
-        Procedural asset
+        {model.tag}
       </p>
       <h1
         id="showcase-heading"
         className="mb-4 text-3xl font-semibold tracking-tight text-primary sm:text-4xl"
       >
-        Lunar spacesuit
+        {model.title}
       </h1>
+      <p className="mb-3 rounded-control border border-line-strong bg-elevated px-3 py-2 text-sm text-secondary">
+        <span className="font-medium text-primary">Blender {model.blenderVersion}</span>
+        <span className="text-secondary"> — use this version for best results when running the script.</span>
+      </p>
       <p className="text-base font-light leading-relaxed text-secondary sm:text-lg">
-        A highly detailed procedural generation script for the Artemis-class
-        extravehicular mobility unit. Rendered in real time.
+        {model.description}
       </p>
     </div>
   );
 }
 
-function HeroActions() {
+function HeroActions({ model }: { model: ModelEntry }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    if (copied) return;
+    const ok = await copyToClipboard(model.code);
+    if (!ok) return;
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  }, [copied, model.code]);
+
   return (
-    <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+    <div className="mt-10 flex flex-col items-stretch gap-3">
       <button
         type="button"
-        className="inline-flex w-full items-center justify-center gap-2 rounded-control bg-accent px-6 py-3 text-sm font-semibold text-bg shadow-card transition-colors hover:bg-primary active:scale-[0.99] motion-reduce:active:scale-100 sm:w-auto"
+        onClick={handleCopy}
+        aria-pressed={copied}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-control bg-accent px-6 py-3 text-sm font-semibold text-bg shadow-card transition-colors hover:bg-primary active:scale-[0.99] motion-reduce:active:scale-100 sm:w-auto sm:self-start"
       >
-        <Download className="h-4 w-4" aria-hidden />
-        Download .glb
+        {copied ? (
+          <Check className="h-4 w-4 text-emerald-700" aria-hidden />
+        ) : (
+          <Copy className="h-4 w-4" aria-hidden />
+        )}
+        {copied ? "Copied to clipboard" : "Copy generation code"}
       </button>
-      <a
-        href="#"
-        className="inline-flex w-full items-center justify-center gap-2 rounded-control border border-line-strong bg-transparent px-5 py-3 text-center text-sm font-medium text-secondary transition-colors hover:border-line-focus hover:text-primary motion-reduce:transition-none sm:w-auto"
-      >
-        <FileText className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
-        <span className="border-b border-transparent pb-px transition-[border-color] hover:border-secondary">
-          View documentation
-        </span>
-      </a>
+      <span className="sr-only" aria-live="polite">
+        {copied ? "Code copied to clipboard." : ""}
+      </span>
     </div>
   );
 }
 
-export function CodePanel() {
+export function CodePanel({ model }: CodePanelProps) {
   return (
     <div
       id="showcase"
       className="flex min-h-[calc(100vh-73px)] flex-col border-b border-line lg:flex-row"
     >
-      <ModelStage />
+      <ModelStage model={model} />
       <section className="flex w-full flex-col justify-center p-6 lg:w-1/2 lg:p-12 lg:pl-6">
         <div className="mx-auto flex w-full max-w-measure flex-col lg:mx-0">
-          <HeroCopy />
-          <HeroActions />
+          <HeroCopy model={model} />
+          <HeroActions model={model} />
         </div>
       </section>
     </div>

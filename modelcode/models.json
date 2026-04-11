@@ -1,0 +1,12 @@
+[
+  {
+    "id": "home-key",
+    "name": "Sweet home key holder",
+    "description": "Blender Python script for 3D print: pill-shaped base and wood panel with hook holes, house block with roof trim and arched window, boolean-union tree canopy, extruded Sweet/Home text, wall-mount holes, CodeFryDev engraving, studio lighting—parented to a rig empty.",
+    "modelUrl": "https://raw.githubusercontent.com/codefrydev/Data/refs/heads/main/3DPrintModels/sweethome.glb",
+    "blenderVersion": "4.2 LTS",
+    "codeFile": "homeKey",
+    "tag": "Blender · Python",
+    "tagTone": "green"
+  }
+]
