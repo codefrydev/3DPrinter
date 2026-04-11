@@ -32,22 +32,32 @@ const cards = [
 
 export function Gallery() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
-      <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <h2 className="mb-2 text-2xl font-bold tracking-tight">
-            Procedural Collection
+    <section
+      id="gallery"
+      className="mx-auto max-w-7xl scroll-mt-24 px-6 py-20 lg:px-8"
+      aria-labelledby="gallery-heading"
+    >
+      <div className="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+        <div className="max-w-measure">
+          <h2
+            id="gallery-heading"
+            className="mb-2 text-2xl font-semibold tracking-tight text-primary"
+          >
+            Procedural collection
           </h2>
-          <p className="font-light text-secondary">
-            Explore the gallery of generated 3D assets and their source code.
+          <p className="font-light leading-relaxed text-secondary">
+            Explore generated 3D assets and their source workflows.
           </p>
         </div>
         <button
           type="button"
-          className="group flex items-center gap-2 text-sm font-medium text-secondary transition-colors hover:text-accent"
+          className="group inline-flex items-center gap-2 rounded-control border border-transparent px-3 py-2 text-sm font-medium text-secondary transition-colors hover:border-line-strong hover:text-primary motion-reduce:transition-none"
         >
-          View All Gallery{" "}
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          View all gallery
+          <ArrowRight
+            className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none"
+            aria-hidden
+          />
         </button>
       </div>
 
@@ -57,19 +67,27 @@ export function Gallery() {
             <a
               key={title}
               href={href}
-              className="group block overflow-hidden rounded-lg border border-[#27272a] bg-surface transition-all duration-300 hover:-translate-y-1 hover:border-[#3f3f46] hover:shadow-2xl hover:shadow-black/50"
+              aria-label={`${title}: ${description}`}
+              className="group block overflow-hidden rounded-card border border-line-strong bg-surface shadow-card transition-[border-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-line-focus hover:shadow-card-hover motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
-              <div className="relative flex h-52 items-center justify-center overflow-hidden border-b border-[#27272a] bg-[#121212]">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#27272a] to-transparent opacity-40" />
-                <Icon className="relative z-10 h-12 w-12 text-[#3f3f46] transition-colors duration-500 group-hover:scale-110 group-hover:text-secondary" />
+              <div className="relative flex h-52 items-center justify-center overflow-hidden border-b border-line-strong bg-elevated">
+                <div
+                  className="absolute inset-0 opacity-50"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(circle at center, rgb(39 39 42 / 0.5), transparent 70%)",
+                  }}
+                  aria-hidden
+                />
+                <Icon className="relative z-10 h-12 w-12 text-line-focus transition-colors duration-300 ease-out group-hover:text-secondary motion-reduce:transition-none" />
               </div>
               <div className="p-6">
-                <div className="mb-3 flex items-start justify-between">
-                  <h3 className="font-semibold text-primary transition-colors group-hover:text-accent">
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <h3 className="font-semibold text-primary transition-colors duration-200 group-hover:text-accent motion-reduce:transition-none">
                     {title}
                   </h3>
                   <span
-                    className={`rounded border border-[#27272a] bg-[#121212] px-2 py-1 font-mono text-[10px] ${tagClass}`}
+                    className={`shrink-0 rounded border border-line-strong bg-elevated px-2 py-1 font-mono text-[10px] font-medium uppercase tracking-wide ${tagClass}`}
                   >
                     {tag}
                   </span>

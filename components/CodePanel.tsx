@@ -1,34 +1,13 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Check, Copy, Download, Mouse } from "lucide-react";
+import { Check, Copy, Download, FileText, Mouse } from "lucide-react";
 import { LUNAR_SPACESUIT_CODE } from "@/lib/modelgenCode";
 import { LazyModelViewer } from "@/components/LazyModelViewer";
+import { copyToClipboard } from "@/lib/copyToClipboard";
 
 const MODEL_SRC =
   "https://modelviewer.dev/shared-assets/models/Astronaut.glb";
-
-async function copyToClipboard(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    try {
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      ta.setAttribute("readonly", "");
-      ta.style.position = "fixed";
-      ta.style.left = "-9999px";
-      document.body.appendChild(ta);
-      ta.select();
-      const ok = document.execCommand("copy");
-      document.body.removeChild(ta);
-      return ok;
-    } catch {
-      return false;
-    }
-  }
-}
 
 function ModelStage() {
   const [overlayCopied, setOverlayCopied] = useState(false);
@@ -42,22 +21,39 @@ function ModelStage() {
   }, [overlayCopied]);
 
   return (
-    <section className="relative flex h-[55vh] w-full shrink-0 items-center justify-center p-4 lg:h-auto lg:w-1/2 lg:p-8">
-      <div className="group relative h-full w-full overflow-hidden rounded-lg border border-[#1f1f1f] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1a1a1a] to-bg">
-        <div className="absolute right-4 top-4 z-10 translate-y-[-10px] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+    <section
+      className="relative flex h-[55vh] w-full shrink-0 items-center justify-center p-4 lg:h-auto lg:w-1/2 lg:p-8"
+      aria-label="Interactive 3D preview"
+    >
+      <div className="group relative h-full w-full overflow-hidden rounded-stage border border-line bg-gradient-to-b from-inset to-bg shadow-stage">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.35]"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse 80% 60% at 50% 45%, rgb(39 39 42 / 0.45), transparent 65%)",
+          }}
+          aria-hidden
+        />
+
+        <div className="absolute right-4 top-4 z-10 translate-y-[-8px] opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none">
           <button
             type="button"
             onClick={handleOverlayCopy}
-            className="flex items-center gap-2 rounded-lg border border-[#27272a] bg-surface/80 px-4 py-2 text-sm font-medium text-primary shadow-lg backdrop-blur transition-all hover:border-secondary hover:bg-surface"
+            aria-pressed={overlayCopied}
+            className="flex items-center gap-2 rounded-control border border-line-strong bg-surface/85 px-3.5 py-2 text-sm font-medium text-primary shadow-card backdrop-blur-sm transition-colors hover:border-line-focus hover:bg-surface motion-reduce:transition-none"
           >
             {overlayCopied ? (
               <Check className="h-4 w-4 text-syntax-green" aria-hidden />
             ) : (
               <Copy className="h-4 w-4" aria-hidden />
             )}
-            <span>{overlayCopied ? "Copied!" : "Copy Code"}</span>
+            <span>{overlayCopied ? "Copied" : "Copy code"}</span>
           </button>
         </div>
+
+        <span className="sr-only" aria-live="polite">
+          {overlayCopied ? "Code copied to clipboard." : ""}
+        </span>
 
         <div className="absolute inset-0">
           <LazyModelViewer
@@ -67,9 +63,9 @@ function ModelStage() {
           />
         </div>
 
-        <div className="pointer-events-none absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-[#27272a] bg-surface/80 px-3 py-1.5 text-xs text-secondary opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
-          <Mouse className="h-3 w-3" aria-hidden />
-          Scroll to zoom, drag to rotate
+        <div className="pointer-events-none absolute bottom-4 left-1/2 flex max-w-[90%] -translate-x-1/2 items-center gap-2 rounded-full border border-line-strong bg-surface/85 px-3 py-1.5 text-xs text-secondary opacity-70 shadow-card backdrop-blur-sm transition-opacity duration-300 ease-out group-hover:opacity-100 motion-reduce:opacity-100 motion-reduce:transition-none">
+          <Mouse className="h-3 w-3 shrink-0 text-secondary" aria-hidden />
+          <span>Scroll to zoom · drag to rotate</span>
         </div>
       </div>
     </section>
@@ -78,13 +74,19 @@ function ModelStage() {
 
 function HeroCopy() {
   return (
-    <div className="mb-8">
-      <h1 className="mb-3 text-3xl font-bold tracking-tight lg:text-4xl">
-        Lunar Spacesuit
+    <div className="mb-10 max-w-measure">
+      <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-secondary">
+        Procedural asset
+      </p>
+      <h1
+        id="showcase-heading"
+        className="mb-4 text-3xl font-semibold tracking-tight text-primary sm:text-4xl"
+      >
+        Lunar spacesuit
       </h1>
-      <p className="font-light leading-relaxed text-secondary">
+      <p className="text-base font-light leading-relaxed text-secondary sm:text-lg">
         A highly detailed procedural generation script for the Artemis-class
-        extravehicular mobility unit. Rendered in real-time.
+        extravehicular mobility unit. Rendered in real time.
       </p>
     </div>
   );
@@ -92,19 +94,22 @@ function HeroCopy() {
 
 function HeroActions() {
   return (
-    <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
+    <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
       <button
         type="button"
-        className="flex w-full items-center justify-center gap-2 rounded bg-accent px-6 py-3 text-sm font-semibold text-bg transition-colors hover:bg-gray-200 sm:w-auto"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-control bg-accent px-6 py-3 text-sm font-semibold text-bg shadow-card transition-colors hover:bg-primary active:scale-[0.99] motion-reduce:active:scale-100 sm:w-auto"
       >
         <Download className="h-4 w-4" aria-hidden />
         Download .glb
       </button>
       <a
         href="#"
-        className="w-full py-3 text-center text-sm text-secondary transition-colors hover:text-accent sm:w-auto"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-control border border-line-strong bg-transparent px-5 py-3 text-center text-sm font-medium text-secondary transition-colors hover:border-line-focus hover:text-primary motion-reduce:transition-none sm:w-auto"
       >
-        View Documentation
+        <FileText className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+        <span className="border-b border-transparent pb-px transition-[border-color] hover:border-secondary">
+          View documentation
+        </span>
       </a>
     </div>
   );
@@ -112,10 +117,13 @@ function HeroActions() {
 
 export function CodePanel() {
   return (
-    <div className="flex min-h-[calc(100vh-73px)] flex-col border-b border-[#1f1f1f] lg:flex-row">
+    <div
+      id="showcase"
+      className="flex min-h-[calc(100vh-73px)] flex-col border-b border-line lg:flex-row"
+    >
       <ModelStage />
-      <section className="flex w-full flex-col p-6 lg:w-1/2 lg:p-12 lg:pl-4">
-        <div className="mx-auto flex w-full max-w-2xl flex-col lg:mx-0">
+      <section className="flex w-full flex-col justify-center p-6 lg:w-1/2 lg:p-12 lg:pl-6">
+        <div className="mx-auto flex w-full max-w-measure flex-col lg:mx-0">
           <HeroCopy />
           <HeroActions />
         </div>

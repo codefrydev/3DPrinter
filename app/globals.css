@@ -2,22 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  :where(a, button):focus {
+    outline: none;
+  }
+
+  :where(a, button):focus-visible {
+    @apply rounded-sm ring-2 ring-accent/35 ring-offset-2 ring-offset-bg;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #171717;
+  background: theme("colors.surface");
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: theme("colors.line-strong");
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: theme("colors.line-focus");
 }
 
 model-viewer {
