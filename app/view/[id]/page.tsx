@@ -21,10 +21,10 @@ export async function generateMetadata({
   const { id } = await params;
   const model = getModelById(id);
   if (!model) {
-    return { title: "Not found | ModelGen" };
+    return { title: "Not found | 3D Printer" };
   }
   return {
-    title: `${model.title} | ModelGen`,
+    title: `${model.title} | 3D Printer`,
     description: model.description,
   };
 }

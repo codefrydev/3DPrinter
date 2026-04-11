@@ -40,7 +40,7 @@ export function Header() {
         <div className="flex items-center gap-2">
           <Box className="h-5 w-5 text-accent" aria-hidden />
           <span className="text-lg font-semibold tracking-tight text-primary">
-            ModelGen
+            3D Printer
           </span>
         </div>
         <nav className="hidden items-center gap-6 text-sm font-medium text-secondary sm:flex">

@@ -17,7 +17,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ModelGen | Procedural 3D",
+  title: "3D Printer",
   description:
     "Procedural 3D model showcase: browse scripts, preview GLBs in the browser, and copy generation code.",
 };

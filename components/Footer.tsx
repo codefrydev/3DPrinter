@@ -6,7 +6,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 py-12 sm:flex-row sm:items-center sm:justify-between lg:px-8">
         <div>
           <p className="text-sm font-semibold tracking-tight text-primary">
-            ModelGen
+            3D Printer
           </p>
           <p className="mt-1 max-w-sm text-sm leading-relaxed text-secondary">
             Procedural 3D showcases and generation scripts.
@@ -36,7 +36,7 @@ export function Footer() {
           </a>
         </nav>
         <p className="text-xs text-secondary sm:text-right">
-          © {year} ModelGen. All rights reserved.
+          © {year} Codefrydev. All rights reserved.
         </p>
       </div>
     </footer>

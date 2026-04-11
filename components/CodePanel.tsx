@@ -27,14 +27,6 @@ function ModelStage({ model }: { model: ModelEntry }) {
       aria-label="Interactive 3D preview"
     >
       <div className="group relative h-full w-full overflow-hidden rounded-stage border border-line bg-gradient-to-b from-inset to-bg shadow-stage">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.35]"
-          style={{
-            backgroundImage:
-              "radial-gradient(ellipse 80% 60% at 50% 45%, rgb(39 39 42 / 0.45), transparent 65%)",
-          }}
-          aria-hidden
-        />
 
         <div className="absolute right-4 top-4 z-10 translate-y-[-8px] opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none">
           <button
@@ -64,15 +56,6 @@ function ModelStage({ model }: { model: ModelEntry }) {
           />
         </div>
 
-        <div className="pointer-events-none absolute bottom-4 left-1/2 flex max-w-[90%] -translate-x-1/2 flex-col items-center gap-1 rounded-full border border-line-strong bg-surface/85 px-3 py-1.5 text-center text-xs text-secondary shadow-card backdrop-blur-sm opacity-80 transition-opacity duration-300 ease-out group-hover:opacity-100 motion-reduce:opacity-100 motion-reduce:transition-none">
-          <span className="flex items-center gap-2">
-            <Mouse className="h-3 w-3 shrink-0 text-secondary" aria-hidden />
-            Scroll to zoom · drag to rotate
-          </span>
-          <span className="text-[10px] font-normal text-secondary/90">
-            Web preview only — no file download from this page.
-          </span>
-        </div>
       </div>
     </section>
   );
