@@ -1,21 +1,13 @@
 import Link from "next/link";
-import { ArrowRight, Box, Home } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { GalleryCardPreview } from "@/components/GalleryCardPreview";
 import type { GalleryModel, ModelTagTone } from "@/modelcode/registry";
-import type { LucideIcon } from "lucide-react";
 
 const toneClass: Record<ModelTagTone, string> = {
   blue: "text-syntax-blue",
   green: "text-syntax-green",
   pink: "text-syntax-pink",
 };
-
-const iconById: Record<string, LucideIcon> = {
-  "home-key": Home,
-};
-
-function cardIcon(id: string): LucideIcon {
-  return iconById[id] ?? Box;
-}
 
 export type GalleryProps = {
   models: readonly GalleryModel[];
@@ -55,7 +47,6 @@ export function Gallery({ models }: GalleryProps) {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {models.map((m) => {
-          const Icon = cardIcon(m.id);
           const tagClass = toneClass[m.tagTone];
           return (
             <Link
@@ -64,16 +55,19 @@ export function Gallery({ models }: GalleryProps) {
               aria-label={`${m.title}: open 3D viewer and copy code. ${m.description}`}
               className="group block overflow-hidden rounded-card border border-line-strong bg-surface shadow-card transition-[border-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-line-focus hover:shadow-card-hover motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
-              <div className="relative flex h-52 items-center justify-center overflow-hidden border-b border-line-strong bg-elevated">
+              <div className="relative h-52 overflow-hidden border-b border-line-strong bg-elevated">
+                <GalleryCardPreview
+                  src={m.modelUrl}
+                  alt={`${m.title} — preview`}
+                />
                 <div
-                  className="absolute inset-0 opacity-50"
+                  className="pointer-events-none absolute inset-0 z-[1] opacity-30"
                   style={{
                     backgroundImage:
-                      "radial-gradient(circle at center, rgb(39 39 42 / 0.5), transparent 70%)",
+                      "radial-gradient(circle at center, rgb(24 24 27 / 0.6), transparent 65%)",
                   }}
                   aria-hidden
                 />
-                <Icon className="relative z-10 h-12 w-12 text-line-focus transition-colors duration-300 ease-out group-hover:text-secondary motion-reduce:transition-none" />
               </div>
               <div className="p-6">
                 <div className="mb-3 flex items-start justify-between gap-3">

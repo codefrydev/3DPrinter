@@ -1,8 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { ModelViewerProps } from "./ModelViewer";
 
-export const LazyModelViewer = dynamic(() => import("./ModelViewer"), {
+export const LazyModelViewer = dynamic<ModelViewerProps>(() => import("./ModelViewer"), {
   ssr: false,
   loading: () => (
     <div

@@ -7,9 +7,11 @@ declare module "react" {
         HTMLAttributes<HTMLElement> & {
           src?: string;
           alt?: string;
+          loading?: "auto" | "lazy";
           "camera-controls"?: boolean | string;
           "auto-rotate"?: boolean | string;
           "shadow-intensity"?: string;
+          "interaction-prompt"?: "auto" | "none" | string;
         },
         HTMLElement
       >;

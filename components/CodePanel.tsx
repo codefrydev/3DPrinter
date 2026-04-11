@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Check, Copy, Mouse } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import type { ModelEntry } from "@/modelcode/registry";
 import { LazyModelViewer } from "@/components/LazyModelViewer";
 import { copyToClipboard } from "@/lib/copyToClipboard";
