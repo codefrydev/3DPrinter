@@ -31,7 +31,7 @@ function ModelStage({ model }: { model: ModelEntry }) {
     >
       <div className="group relative h-full w-full overflow-hidden rounded-stage border border-line bg-gradient-to-b from-inset to-bg shadow-stage">
 
-        <div className="absolute right-4 top-4 z-10 translate-y-[-8px] opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none">
+        <div className="absolute right-4 top-4 z-10 translate-y-0 opacity-100 transition-all duration-300 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none pointer-fine:translate-y-[-8px] pointer-fine:opacity-0 pointer-fine:group-hover:translate-y-0 pointer-fine:group-hover:opacity-100">
           <button
             type="button"
             onClick={handleOverlayCopy}
@@ -125,17 +125,18 @@ function HeroActions({ model }: { model: ModelEntry }) {
 
 export function CodePanel({ model }: CodePanelProps) {
   return (
-    <div
+    <section
       id="showcase"
-      className="flex min-h-[calc(100vh-73px)] flex-col border-b border-line lg:flex-row"
+      aria-labelledby="showcase-heading"
+      className="flex min-h-[calc(100dvh-var(--site-header-height))] flex-col border-b border-line lg:flex-row"
     >
       <ModelStage model={model} />
-      <section className="flex w-full flex-col justify-center p-6 lg:w-1/2 lg:p-12 lg:pl-6">
+      <div className="flex w-full flex-col justify-center p-6 lg:w-1/2 lg:p-12 lg:pl-6">
         <div className="mx-auto flex w-full max-w-measure flex-col lg:mx-0">
           <HeroCopy model={model} />
           <HeroActions model={model} />
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

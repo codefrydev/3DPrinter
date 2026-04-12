@@ -33,19 +33,24 @@ export function Gallery({ models }: GalleryProps) {
             script source from there.
           </p>
         </div>
-        <a
-          href="#gallery"
-          className="group inline-flex items-center gap-2 rounded-control border border-transparent px-3 py-2 text-sm font-medium text-secondary transition-colors hover:border-line-strong hover:text-primary motion-reduce:transition-none"
-        >
-          Browse models
-          <ArrowRight
-            className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none"
-            aria-hidden
-          />
-        </a>
+        {models.length > 0 ? (
+          <Link
+            href={`/view/${models[0].id}/`}
+            className="group inline-flex items-center gap-2 rounded-control border border-transparent px-3 py-2 text-sm font-medium text-secondary transition-colors hover:border-line-strong hover:text-primary motion-reduce:transition-none"
+          >
+            Open first model
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none"
+              aria-hidden
+            />
+          </Link>
+        ) : null}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div
+        id="gallery-grid"
+        className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+      >
         {models.map((m) => {
           const tagClass = toneClass[m.tagTone];
           return (

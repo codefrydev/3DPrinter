@@ -25,6 +25,27 @@ export const VIEWER_SCENE_SOLID_BACKGROUND = ELEVATED_SOLID;
 
 export type ViewerScenePresetId = "neutralStudio" | "legacyFront" | "softProduct";
 
+const PRESET_MATCH_EPS = 0.0001;
+
+function scenesEqual(a: ViewerSceneSettings, b: ViewerSceneSettings): boolean {
+  if (a.environmentImage !== b.environmentImage) return false;
+  if (a.backgroundTransparent !== b.backgroundTransparent) return false;
+  return (
+    Math.abs(a.exposure - b.exposure) < PRESET_MATCH_EPS &&
+    Math.abs(a.shadowIntensity - b.shadowIntensity) < PRESET_MATCH_EPS &&
+    Math.abs(a.shadowSoftness - b.shadowSoftness) < PRESET_MATCH_EPS
+  );
+}
+
+/** Returns which preset matches the current scene values, or null if sliders diverge from any preset. */
+export function getMatchingPresetId(scene: ViewerSceneSettings): ViewerScenePresetId | null {
+  const ids = Object.keys(VIEWER_SCENE_PRESETS) as ViewerScenePresetId[];
+  for (const id of ids) {
+    if (scenesEqual(scene, VIEWER_SCENE_PRESETS[id])) return id;
+  }
+  return null;
+}
+
 export const VIEWER_SCENE_PRESETS: Record<ViewerScenePresetId, ViewerSceneSettings> = {
   neutralStudio: {
     environmentImage: "neutral",

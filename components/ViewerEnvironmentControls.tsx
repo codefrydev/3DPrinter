@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, Cog } from "lucide-react";
 import {
+  getMatchingPresetId,
   VIEWER_SCENE_PRESETS,
   type ViewerScenePresetId,
 } from "@/lib/viewerScene";
@@ -17,6 +18,7 @@ const PRESET_LABELS: Record<ViewerScenePresetId, string> = {
 export function ViewerEnvironmentControls() {
   const { scene, setScene, updateScene } = useViewerScene();
   const [minimized, setMinimized] = useState(true);
+  const activePresetId = getMatchingPresetId(scene);
 
   return (
     <div
@@ -62,7 +64,12 @@ export function ViewerEnvironmentControls() {
                   key={id}
                   type="button"
                   onClick={() => setScene(VIEWER_SCENE_PRESETS[id])}
-                  className="rounded border border-line px-2 py-1 text-xs font-medium text-primary transition-colors hover:border-line-focus hover:bg-elevated"
+                  aria-pressed={activePresetId === id}
+                  className={`rounded border px-2 py-1 text-xs font-medium text-primary transition-colors hover:border-line-focus hover:bg-elevated ${
+                    activePresetId === id
+                      ? "border-line-focus bg-elevated"
+                      : "border-line"
+                  }`}
                 >
                   {PRESET_LABELS[id]}
                 </button>

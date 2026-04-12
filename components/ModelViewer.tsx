@@ -1,11 +1,24 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import "@google/model-viewer";
 import {
   DEFAULT_VIEWER_SCENE,
   VIEWER_SCENE_SOLID_BACKGROUND,
   type ViewerSceneSettings,
 } from "@/lib/viewerScene";
+
+function usePrefersReducedMotion(): boolean {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+      mq.addEventListener("change", onStoreChange);
+      return () => mq.removeEventListener("change", onStoreChange);
+    },
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false,
+  );
+}
 
 export type ModelViewerProps = {
   src: string;
@@ -30,6 +43,8 @@ export default function ModelViewer({
   const passThrough = interactive === false;
   const scene = sceneProp ?? DEFAULT_VIEWER_SCENE;
   const bg = scene.backgroundTransparent ? "transparent" : VIEWER_SCENE_SOLID_BACKGROUND;
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const autoRotate = interactive && !prefersReducedMotion;
 
   return (
     <model-viewer
@@ -38,7 +53,7 @@ export default function ModelViewer({
       loading={loading}
       {...(interactive ? { "camera-controls": true as const } : {})}
       {...(passThrough ? { "interaction-prompt": "none" as const } : {})}
-      auto-rotate
+      {...(autoRotate ? { "auto-rotate": true as const } : {})}
       environment-image={scene.environmentImage}
       exposure={String(scene.exposure)}
       shadow-intensity={String(scene.shadowIntensity)}

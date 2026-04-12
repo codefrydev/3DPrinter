@@ -3,6 +3,17 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Sticky header: one row on sm+, logo row + nav row below on mobile */
+    --site-header-height: 7.75rem;
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --site-header-height: 4.5rem;
+    }
+  }
+
   html {
     @apply scroll-smooth;
   }
@@ -19,6 +30,22 @@
 
   :where(a, button):focus-visible {
     @apply rounded-sm ring-2 ring-accent/35 ring-offset-2 ring-offset-bg;
+  }
+
+  :where(input[type="range"]):focus-visible {
+    @apply rounded-sm ring-2 ring-accent/35 ring-offset-2 ring-offset-bg;
+  }
+
+  .skip-link {
+    @apply fixed left-4 top-4 z-[100] -translate-y-[120%] rounded-control bg-surface px-4 py-2 text-sm font-medium text-primary shadow-card transition-transform motion-reduce:transition-none;
+  }
+
+  .skip-link:focus {
+    outline: none;
+  }
+
+  .skip-link:focus-visible {
+    @apply translate-y-0 rounded-sm ring-2 ring-accent/35 ring-offset-2 ring-offset-bg;
   }
 }
 

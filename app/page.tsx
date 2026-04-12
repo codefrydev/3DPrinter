@@ -7,7 +7,7 @@ export default function Home() {
   const galleryModels = listModelsForGallery();
 
   return (
-    <main>
+    <main id="main-content">
       <CodePanel model={featured} />
       <Gallery models={galleryModels} />
     </main>
