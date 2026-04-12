@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import { Check, Copy } from "lucide-react";
 import type { ModelEntry } from "@/modelcode/registry";
 import { LazyModelViewer } from "@/components/LazyModelViewer";
+import { ViewerEnvironmentControls } from "@/components/ViewerEnvironmentControls";
+import { useViewerScene } from "@/components/ViewerSceneProvider";
 import { copyToClipboard } from "@/lib/copyToClipboard";
 
 export type CodePanelProps = {
@@ -11,6 +13,7 @@ export type CodePanelProps = {
 };
 
 function ModelStage({ model }: { model: ModelEntry }) {
+  const { scene } = useViewerScene();
   const [overlayCopied, setOverlayCopied] = useState(false);
 
   const handleOverlayCopy = useCallback(async () => {
@@ -53,8 +56,11 @@ function ModelStage({ model }: { model: ModelEntry }) {
             src={model.modelUrl}
             alt={`${model.title} — 3D preview`}
             className="h-full w-full"
+            scene={scene}
           />
         </div>
+
+        <ViewerEnvironmentControls />
 
       </div>
     </section>

@@ -10,7 +10,10 @@ declare module "react" {
           loading?: "auto" | "lazy";
           "camera-controls"?: boolean | string;
           "auto-rotate"?: boolean | string;
+          "environment-image"?: string;
+          exposure?: string | number;
           "shadow-intensity"?: string;
+          "shadow-softness"?: string;
           "interaction-prompt"?: "auto" | "none" | string;
         },
         HTMLElement
