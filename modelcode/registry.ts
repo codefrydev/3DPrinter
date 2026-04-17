@@ -1,5 +1,5 @@
-import homeKeyCode from "./generated/homeKey";
 import manifest from "./models.json";
+import codeByFile from "./generated/codeMap";
 
 export type ModelTagTone = "blue" | "green" | "pink";
 
@@ -29,17 +29,13 @@ type ManifestRow = {
   tagTone?: ModelTagTone;
 };
 
-const CODE_BY_FILE: Record<string, string> = {
-  homeKey: homeKeyCode,
-};
-
 function buildModels(): ModelEntry[] {
   const rows = manifest as ManifestRow[];
   return rows.map((row) => {
-    const code = CODE_BY_FILE[row.codeFile];
+    const code = codeByFile[row.codeFile];
     if (typeof code !== "string") {
       throw new Error(
-        `[modelcode/registry] No bundled code for codeFile "${row.codeFile}". Add import + CODE_BY_FILE entry, and ensure scripts/sync-modelcode.mjs emits modelcode/generated/${row.codeFile}.ts`,
+        `[modelcode/registry] No bundled code for codeFile "${row.codeFile}". Add modelcode/${row.codeFile}.py and run npm run sync:modelcode`,
       );
     }
     return {
@@ -63,8 +59,11 @@ export function getModelById(id: string): ModelEntry | undefined {
   return MODELS.find((m) => m.id === id);
 }
 
+/** Shown in the home hero (`CodePanel`). */
+const FEATURED_MODEL_ID = "yoga-oscar";
+
 export function getFeaturedModel(): ModelEntry {
-  return MODELS[0];
+  return getModelById(FEATURED_MODEL_ID) ?? MODELS[0];
 }
 
 export function listModelsForGallery(): GalleryModel[] {

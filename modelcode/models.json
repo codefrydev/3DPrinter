@@ -8,5 +8,15 @@
     "codeFile": "homeKey",
     "tag": "Blender · Python",
     "tagTone": "green"
+  },
+  {
+    "id": "yoga-oscar",
+    "name": "Yoga Oscar",
+    "description": "Blender Python script for 3D print: stylized Oscar statuette with yoga pose, lotus base, and engraved 'CodeFryDev' on the back. Created using Blender 4.2 LTS, this model features a dynamic pose with one leg raised and arms in a tree pose, perfect for yoga enthusiasts and film lovers alike.",
+    "modelUrl": "https://raw.githubusercontent.com/codefrydev/Data/refs/heads/main/3DPrintModels/yogapose.glb",
+    "blenderVersion": "4.2 LTS",
+    "codeFile": "yogaOscar",
+    "tag": "Blender · Python",
+    "tagTone": "black"
   }
 ]
